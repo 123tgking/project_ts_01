@@ -11,3 +11,7 @@ export const log = (fileName: string, methodName: string, varName: string, val: 
     
 }
 
+export const printErrorMessage = (message:string) => {
+    console.error(message);
+}
+

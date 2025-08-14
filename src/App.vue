@@ -47,11 +47,16 @@ const edit = () => {
 // 生成回复
 const createAssistant = async () => {
     if (query.content.trim() == '') {
+        alert("用户问题不能为空！")
         return;
     }
     console.debug('@生成回复');
     // 1.发起请求
     const response = await generateAssistant(query.content);
+    if (response == null) {
+        alert("HTTP请求错误！")
+        return;
+    }
     log('APP.vue', 'createAssistant', '[响应]response', response);
     // 2.更新cotList
     // 2.1.清空cotList
