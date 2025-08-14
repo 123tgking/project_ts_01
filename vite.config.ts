@@ -10,6 +10,16 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
+  test: {
+    // 启用全局 API（如 describe、it 无需手动导入）
+    globals: true,
+    // 使用 jsdom 模拟浏览器环境
+    environment: 'jsdom',
+    // 测试文件匹配规则
+    include: ['**/*.test.ts', '**/*.spec.ts'],
+    // 排除不需要测试的目录
+    exclude: ['node_modules', 'dist']
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
