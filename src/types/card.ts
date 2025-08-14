@@ -3,5 +3,5 @@ export type Card = {
     // role：USER、ASSISTANT、TOOL、FINAL
     role: string;
     title: string;
-    content: string;
+    content?: any;
 }

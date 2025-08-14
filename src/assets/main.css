@@ -3,7 +3,6 @@
 #app {
   display: flex;
   flex-direction: column;
-  gap: 10px;
   /* 水平居中 */
   align-items: center;
 
