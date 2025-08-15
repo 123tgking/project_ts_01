@@ -122,17 +122,17 @@ const save2json = () => {
             </div>
             <!-- 按钮区域 -->
             <div class="btn-area">
-                <el-button v-if="isShowFinalBtn" class="final-btn" type="primary" size="default" @click="endTask">
+                <el-button v-if="isShowFinalBtn" class="final-btn" type="primary" size="default" @click="endTask" :loading="btnLoading">
                     结束任务
                 </el-button>
-                <el-button class="edit-btn" type="primary" size="default" @click="edit">
+                <el-button class="edit-btn" type="primary" size="default" @click="edit" :loading="btnLoading">
                     {{ editBtnModel ? "保存修改" : "编辑" }}
                 </el-button>
-                <el-button v-if="card.role != 'TOOL' && card.role != 'FINAL'" class="generate-btn" type="primary" size="default" @click="callTool">调用工具</el-button>
+                <el-button v-if="card.role != 'TOOL' && card.role != 'FINAL'" class="generate-btn" type="primary" size="default" @click="callTool" :loading="btnLoading">调用工具</el-button>
                 <!-- 在角色为TOOL时显示 -->
-                <el-button v-else-if="card.role == 'TOOL'" class="continue-btn" type="primary" size="default" @click="continueCall">继续调用</el-button>
+                <el-button v-else-if="card.role == 'TOOL'" class="continue-btn" type="primary" size="default" @click="continueCall" :loading="btnLoading">继续调用</el-button>
                 <!-- 在角色为FINAL时显示 -->
-                <el-button v-if="card.role == 'FINAL'" class="continue-btn" type="primary" size="default" @click="save2json">保存</el-button>
+                <el-button v-if="card.role == 'FINAL'" class="continue-btn" type="primary" size="default" @click="save2json" :loading="btnLoading">保存</el-button>
             </div>
         </div>
     </div>

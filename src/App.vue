@@ -4,7 +4,7 @@ import { request } from '@/mocks/base'
 import CotCard from '@/components/CotCard.vue'
 import type { Card } from '@/types/card';
 import { reactive, ref } from 'vue';
-import { log } from '@/utils/logging';
+import { log, printErrorMessage } from '@/utils/logging';
 import { extractContentBetweenTags } from '@/utils/strUtils';
 
 // api
@@ -18,9 +18,11 @@ const query = reactive<Card>({
 });
 
 const cotList = ref<Card[]>([]);
+// 文本框的可编辑状态：true：不可编辑、false：可编辑
 let textAreaIsDisabled = ref<boolean>(true);
+// 文本框的样式状态：true：不可编辑、false：可编辑
 let editModel = ref<boolean>(false);
-// 编辑按钮的状态：false：编辑、true：保存修改
+// 编辑按钮的文字状态：false：编辑、true：保存修改
 let editBtnModel = ref<boolean>(false);
 
 // 编辑
@@ -50,32 +52,50 @@ const createAssistant = async () => {
         alert("用户问题不能为空！")
         return;
     }
-    console.debug('@生成回复');
-    // 1.发起请求
-    const response = await generateAssistant(query.content);
-    if (response == null) {
-        alert("HTTP请求错误！")
-        return;
+    // 1.前置处理
+    // 1.1将所有按钮状态都设置为加载状态
+    loadingAllBtn();
+    // 1.2将数据文本框变为不可编辑状态
+    if (editBtnModel.value == true) {
+        edit()
     }
-    log('APP.vue', 'createAssistant', '[响应]response', response);
-    // 2.更新cotList
-    // 2.1.清空cotList
-    cotList.value = []
-    // 2.2.mock新的assistant
-    const assistant: Card = {
-        id: 'ASSISTANT-1',
-        role: 'ASSISTANT',
-        title: 'ASSISTANT-1',
-        content: "<think>思维链...</think><|FunctionCallBegin|>{\"toolName\": \"Search\", \"parameters\": [\"钱学森\", \"钱学森的成就\"]}<|FunctionCallEnd|>"
-    };
-    // 2.3.存数据
-    cotList.value.push(assistant)
+    // 2.发起请求
+    try {
+        const response = await generateAssistant(query.content);
+        if (response == null) {
+            alert("服务器异常，response数据为空");
+            return;
+        }
+
+        log('APP.vue', 'createAssistant', '[响应]response', response);
+        // 3.更新cotList
+        // 3.1.清空cotList
+        cotList.value = []
+        // 3.2.mock新的assistant
+        const assistant: Card = {
+            id: 'ASSISTANT-1',
+            role: 'ASSISTANT',
+            title: 'ASSISTANT-1',
+            content: `${response.think_content}\n${response.tool_call_content}\n${response.other_content}`,
+        };
+        // 3.3.存数据
+        cotList.value.push(assistant)
+    } catch (error) {
+        // 处理网络异常
+        printErrorMessage("HTTP请求失败");
+        alert("HTTP请求异常，建议重试");
+        return;
+    } finally {
+        // 4.取消所有按钮的加载状态
+        loadingAllBtn();
+    }
 }
 
 // 让所有按钮都变为加载状态
 let btnLoadingStatus = ref<boolean>(false);
 const loadingAllBtn = () => {
-    btnLoadingStatus.value = true;
+    // 采用取反的逻辑
+    btnLoadingStatus.value = !btnLoadingStatus.value;
 }
 
 // 调用工具，只有ASSISTANT才能调用
@@ -281,9 +301,10 @@ const clearCotAfterCard = (card: Card) => {
             </div>
             <!-- 按钮区域 -->
             <div class="btn-area">
-                <el-button class="edit-btn" type="primary" size="default" @click="edit">{{ editBtnModel ? "保存修改" : "编辑"
-                    }}</el-button>
-                <el-button class="generate-btn" type="primary" size="default" @click="createAssistant">生成回复</el-button>
+                <el-button class="edit-btn" type="primary" size="default" @click="edit" :loading="btnLoadingStatus">
+                    {{ editBtnModel ? "保存修改" : "编辑" }} </el-button>
+                <el-button class="generate-btn" type="primary" size="default" @click="createAssistant"
+                    :loading="btnLoadingStatus">{{ btnLoadingStatus == false ? '生成回复' : '等待回复' }}</el-button>
             </div>
         </div>
     </div>

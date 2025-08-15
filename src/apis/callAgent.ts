@@ -6,11 +6,14 @@ const CREATE_API = BASE_API + "/create";
 const CONTINUE_CREATE_API = BASE_API + "/continue_create";
 const STOP_CREATE_API = BASE_API + "/stop_create";
 
+// 调用生成回复接口
 export const generateAssistant = async (data: string) => {
     try {
         const body = {
             content: data,
         }
+        console.log("[调用生成回复接口] -- [body的类型] ==> ", typeof body)
+        console.log("[调用生成回复接口] -- [body的值] ==> ", body)
         const response = await fetch(CREATE_API, {
             method: 'POST',
             headers: {
@@ -31,9 +34,9 @@ export const generateAssistant = async (data: string) => {
             return result.data;
         } else {
             log("callAgent", "generateAssistant", "获取数据失败", result.code, "error");
+            return null;
         }
     } catch (error) {
-        printErrorMessage(`HTTP请求发生错误：${error}`)
-        return null;
+        throw new Error(`HTTP 错误：${error}`);
     }
 }
