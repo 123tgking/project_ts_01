@@ -268,6 +268,10 @@ const createCotPrompt = (currentCard: Card): string | null => {
     }
     for (let i = 0; i <= index; i++) {
         const cot = cotList.value[i];
+        // TOOL角色的card需要做特殊处理
+        if (cot.role == "TOOL") {
+            
+        }
         previous = previous + `${cot.id}:${cot.content}\n`
     }
     previous = previous + '</PreviousText>'

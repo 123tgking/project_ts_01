@@ -12,8 +12,7 @@ export const generateAssistant = async (data: string) => {
         const body = {
             content: data,
         }
-        console.log("[调用生成回复接口] -- [body的类型] ==> ", typeof body)
-        console.log("[调用生成回复接口] -- [body的值] ==> ", body)
+        console.log("[调用生成回复接口] -- [请求参数] ==> ", body)
         const response = await fetch(CREATE_API, {
             method: 'POST',
             headers: {
@@ -39,4 +38,37 @@ export const generateAssistant = async (data: string) => {
     } catch (error) {
         throw new Error(`HTTP 错误：${error}`);
     }
+}
+
+// 调用继续调用接口
+const continueCreate = async () => {
+    const body = {}
+    console.log("[调用生成回复接口] -- [请求参数] ==> ", body)
+    try {
+        const response = await fetch(CONTINUE_CREATE_API, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body),
+        })
+
+        if (!response.ok) {
+            throw new Error(`HTTP 错误：${response.status}`);
+        }
+
+        const result = await response.json();
+
+        log("callAgent", "generateAssistant", "result", result);
+
+        if (result.code == "2000") {
+            return result.data;
+        } else {
+            log("callAgent", "continueCreate", "获取数据失败", result.code, "error");
+            return null;
+        }
+    } catch (error) {
+        throw new Error(`HTTP 错误：${error}`);
+    }
+
 }
